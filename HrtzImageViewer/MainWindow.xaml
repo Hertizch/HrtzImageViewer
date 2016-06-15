@@ -1,0 +1,56 @@
+﻿<Window x:Class="HrtzImageViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ext="clr-namespace:HrtzImageViewer.Extensions"
+        xmlns:converters="clr-namespace:HrtzImageViewer.Converters"
+        mc:Ignorable="d"
+        Title="HrtzImageViewer"
+        WindowStartupLocation="CenterScreen"
+        MouseLeftButtonDown="MainWindow_OnMouseLeftButtonDown"
+        MouseLeftButtonUp="MainWindow_OnMouseLeftButtonUp"
+        MouseMove="MainWindow_OnMouseMove"
+        Style="{StaticResource StyleMainWindow}"
+        Height="{Binding Path=Instance.CurrentImage.BitmapImage.PixelHeight, FallbackValue=200}"
+        Width="{Binding Path=Instance.CurrentImage.BitmapImage.PixelWidth, FallbackValue=400}"
+        DataContext="{StaticResource CurrentImageVm}">
+    
+    <Window.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" TriggerValue="False" IsHidden="False" />
+        <converters:MaxWidthConverter x:Key="MaxWidthConverter" />
+        <converters:MaxHeightConverter x:Key="MaxHeightConverter" />
+    </Window.Resources>
+    
+    <Window.MaxWidth>
+        <Binding Path="Instance.CurrentImage.BitmapImage.PixelWidth" Converter="{StaticResource MaxWidthConverter}" />
+    </Window.MaxWidth>
+    
+    <Window.MaxHeight>
+        <Binding Path="Instance.CurrentImage.BitmapImage.PixelHeight" Converter="{StaticResource MaxHeightConverter}" />
+    </Window.MaxHeight>
+
+    <Window.Background>
+        <ImageBrush x:Name="ImageBrushRoot" ImageSource="{Binding Path=Instance.CurrentImage.BitmapImage.UriSource}" Stretch="Uniform" />
+    </Window.Background>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" DataContext="{StaticResource ShellVm}">
+            <Button Style="{StaticResource StyleTitlebarButton}" ext:ButtonIcon.Icon="{StaticResource IconOpenAs}" Command="{Binding Path=CmdOpenAsDialog}" CommandParameter="{Binding Source={StaticResource CurrentImageVm}, Path=Instance.CurrentImage.BitmapImage.UriSource}" ToolTip="Open as..." />
+            <Button Style="{StaticResource StyleTitlebarButton}" ext:ButtonIcon.Icon="{StaticResource IconClose}" Command="{Binding Path=CmdCloseApp}" />
+        </StackPanel>
+
+        <!-- {Binding Path=Instance.CurrentImage.LoadError, Converter={StaticResource BooleanToVisibilityConverter}} -->
+        <Grid Grid.Row="1" Margin="0,-30,0,0" VerticalAlignment="Center" Visibility="{Binding Path=Instance.CurrentImage.LoadError, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="oops..." Foreground="#FFC33500" FontSize="36" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Path=Instance.CurrentImage.ErrorMessage, FallbackValue=No more info}" Foreground="White" TextWrapping="Wrap" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
